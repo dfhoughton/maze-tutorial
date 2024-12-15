@@ -39,7 +39,7 @@ class Maze {
   tunnel() {
     // initialize branchiness probabilities
     let t1 = Math.random();
-    t1 = t1 + (1 - t1) * Math.random();
+    t1 = t1 + (1 - t1) * Math.random(); // the two branch state gets an extra helping of probability
     const t2 = t1 + (1 - t1) * Math.random();
     const t3 = t2 + (1 - t2) * Math.random();
     const holeCount = function () {
@@ -50,7 +50,7 @@ class Maze {
       return 1;
     };
     // how we will tunnel
-    const maze = this
+    const maze = this;
     const digger = function* () {
       maze.start.knockOutTheWalls(holeCount());
       const queue = [maze.start];
@@ -106,7 +106,8 @@ class Maze {
             candidate = candidates[i];
           }
           const sides = [];
-          for (const side of Object.keys(candidate.walls)) {
+          for (const [side, blocked] of Object.entries(candidate.walls)) {
+            if (!blocked) continue;
             const c = candidate[side]();
             if (c && !c.done) sides.push(side);
           }
@@ -118,6 +119,7 @@ class Maze {
               candidate.digHole(sides[i]);
             }
             queue.push(candidate);
+            continue;
           } else {
             // we should never get here
             console.error("could not find a way to connect start to finish");
@@ -130,7 +132,7 @@ class Maze {
       }
     };
     // now we tunnel away
-    const scoop = digger()
+    const scoop = digger();
     const timer = setInterval(() => {
       if (scoop.next().value) clearInterval(timer);
     }, 0);
