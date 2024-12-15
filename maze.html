@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>Maze</title>
+        <style>
+            table#maze {
+                margin: 10rem auto;
+                border-collapse: collapse;
+                font-size: smaller;
+                td {
+                    width: 14px;
+                    height: 14px;
+                    border: 1px solid #ccc;
+                    text-align: center;
+                    &.unused {
+                        background-color: #ddd;
+                    }
+                    &.start {
+                        background-color: rgba(0, 255, 0, 0.5);
+                    }
+                    &.end {
+                        background-color: gold;
+                    }
+                    &.top {
+                        border-top: 2px solid black;
+                    }
+                    &.bottom {
+                        border-bottom: 2px solid black;
+                    }
+                    &.left {
+                        border-left: 2px solid black;
+                    }
+                    &.right {
+                        border-right: 2px solid black;
+                    }
+                    &.no-top {
+                        border-top: none;
+                    }
+                    &.no-bottom {
+                        border-bottom: none;
+                    }
+                    &.no-left {
+                        border-left: none;
+                    }
+                    &.no-right {
+                        border-right: none;
+                    }
+                }
+            }
+        </style>
+        <script src="maze.js"></script>
+    </head>
+    <body>
+        <table id="maze">
+        </table>
+    </body>
+</html>
