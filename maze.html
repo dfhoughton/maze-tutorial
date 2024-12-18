@@ -1,62 +1,92 @@
 <html>
-    <head>
-        <title>Maze</title>
-        <style>
-            table#maze {
-                margin: 10rem auto;
-                border-collapse: collapse;
-                font-size: smaller;
-                td {
-                    width: 14px;
-                    height: 14px;
-                    border: 1px solid #ccc;
-                    text-align: center;
-                    &.unused {
-                        background-color: #ddd;
-                    }
-                    &.start {
-                        background-color: rgba(0, 255, 0, 0.5);
-                    }
-                    &.end {
-                        background-color: gold;
-                    }
-                    &.top {
-                        border-top: 2px solid black;
-                    }
-                    &.bottom {
-                        border-bottom: 2px solid black;
-                    }
-                    &.left {
-                        border-left: 2px solid black;
-                    }
-                    &.right {
-                        border-right: 2px solid black;
-                    }
-                    &.no-top {
-                        border-top: none;
-                    }
-                    &.no-bottom {
-                        border-bottom: none;
-                    }
-                    &.no-left {
-                        border-left: none;
-                    }
-                    &.no-right {
-                        border-right: none;
-                    }
-                    &.person {
-                        color: blue;
-                    }
-                    &.monster {
-                        color: red;
-                    }
-                }
+  <head>
+    <title>Maze</title>
+    <style>
+      table#maze {
+        /* Colors! Please improve this palette. */
+        --danger-color: red;
+        --success-color: green;
+        --treasure-color: gold;
+        --person-color: blue;
+        /* general maze stuff */
+        margin: 10rem auto;
+        border-collapse: collapse;
+        font-size: smaller;
+        td {
+          width: 14px;
+          height: 14px;
+          border: 1px solid #ccc;
+          text-align: center;
+          &.unused {
+            background-color: #ddd;
+          }
+          &.start {
+            background-color: rgba(0, 255, 0, 0.5);
+          }
+          &.end {
+            background-color: var(--treasure-color);
+          }
+          &.top {
+            border-top: 2px solid black;
+          }
+          &.bottom {
+            border-bottom: 2px solid black;
+          }
+          &.left {
+            border-left: 2px solid black;
+          }
+          &.right {
+            border-right: 2px solid black;
+          }
+          &.no-top {
+            border-top: none;
+          }
+          &.no-bottom {
+            border-bottom: none;
+          }
+          &.no-left {
+            border-left: none;
+          }
+          &.no-right {
+            border-right: none;
+          }
+          /* the mobile things */
+          &.person {
+            color: var(--person-color);
+          }
+          &.monster {
+            color: var(--danger-color);
+          }
+          /* styles for popup messages */
+          &.message-anchor {
+            position: relative;
+          }
+          & > .message {
+            position: absolute;
+            z-index: 1;
+            background-color: white;
+            padding: 4px;
+            border: 2px solid black;
+            border-radius: 5px;
+            margin-top: -1.5rem;
+            font-weight: bold;
+            font-size: large;
+            text-wrap: nowrap;
+            &.bad {
+              border-color: var(--danger-color);
+              color: var(--danger-color);
             }
-        </style>
-        <script src="maze.js"></script>
-    </head>
-    <body>
-        <table id="maze">
-        </table>
-    </body>
+            &.good {
+              border-color: var(--success-color);
+              color: var(--success-color);
+            }
+          }
+        }
+      }
+    </style>
+    <script src="maze.js"></script>
+  </head>
+  <body>
+    <table id="maze"></table>
+  </body>
 </html>

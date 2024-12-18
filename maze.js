@@ -223,9 +223,11 @@ class Maze {
   }
   escaped() {
     this.state = "escaped";
+    this.player.cell.message("w00t!", true)
   }
   dead() {
     this.state = "dead";
+    this.player.cell.message("Oh, noes!", false)
   }
   done() {
     return this.state === "escaped" || this.state === "dead";
@@ -395,6 +397,14 @@ class Cell {
   }
   finish() {
     return this.cell.classList.contains("end")
+  }
+  message(msg, isGood) {
+    this.cell.classList.add('message-anchor');
+    const container = document.createElement('span');
+    container.classList.add('message')
+    container.classList.add(isGood ? 'good' : 'bad');
+    container.innerText = msg;
+    this.cell.appendChild(container);
   }
 }
 
