@@ -176,7 +176,7 @@ class Maze {
   }
   go() {
     const maze = this;
-    this.state = 'tunneling';
+    this.state = "tunneling";
     const play = function* () {
       while (true) {
         maze.monsters.forEach((m) => m.move());
@@ -223,11 +223,11 @@ class Maze {
   }
   escaped() {
     this.state = "escaped";
-    this.player.cell.message("w00t!", true)
+    this.player.cell.message("w00t!", true);
   }
   dead() {
     this.state = "dead";
-    this.player.cell.message("Oh, noes!", false)
+    this.player.cell.message("Oh, noes!", false);
   }
   done() {
     return this.state === "escaped" || this.state === "dead";
@@ -386,6 +386,44 @@ class Cell {
         throw `where did side ${side} come from???`;
     }
   }
+  perpendicular(side) {
+    switch (side) {
+      case "top":
+      case "bottom":
+        return ["left", "right"];
+      case "left":
+      case "right":
+        return ["top", "bottom"];
+      default:
+        throw `what kind of side is ${side}?`;
+    }
+  }
+  /* is the being passing an opening? */
+  temptations(direction) {
+    if (!direction) return [];
+    if (this.walls[direction]) return []; // if forward motion is blocked, this is irrelevant
+    const openings = this.perpendicular(direction).filter(
+      (w) => !this.walls[w]
+    );
+    if (openings.length) {
+      const backwards = this.opposite(direction);
+      const behind = this[backwards]();
+      const ahead = this[direction]();
+      return openings.filter((w) => {
+        if (behind?.walls[w]) return true;
+        if (ahead?.walls[w]) return true;
+        // are we passing a tunnel opening?
+        if (behind && ahead) {
+          const beside = this[w]();
+          if (beside && beside.walls[direction] && beside.walls[backwards])
+            return true;
+        }
+        return false;
+      });
+    } else {
+      return []; // no temptations
+    }
+  }
   hasMonster() {
     return this.cell.classList.contains("monster");
   }
@@ -396,13 +434,13 @@ class Cell {
     return this.cell.classList.contains("unused");
   }
   finish() {
-    return this.cell.classList.contains("end")
+    return this.cell.classList.contains("end");
   }
   message(msg, isGood) {
-    this.cell.classList.add('message-anchor');
-    const container = document.createElement('span');
-    container.classList.add('message')
-    container.classList.add(isGood ? 'good' : 'bad');
+    this.cell.classList.add("message-anchor");
+    const container = document.createElement("span");
+    container.classList.add("message");
+    container.classList.add(isGood ? "good" : "bad");
     container.innerText = msg;
     this.cell.appendChild(container);
   }
@@ -412,9 +450,11 @@ class Monster {
   cell;
   maze;
   direction;
-  constructor(cell) {
+  curiosity;
+  constructor(cell, curiosity) {
     this.cell = cell;
     this.maze = cell.maze;
+    this.curiosity = curiosity ?? 0.2 + Math.random();
     this.pickDirection();
     this.cell.cell.classList.add("monster");
     this.cell.cell.innerHTML = "&#x25cf;";
@@ -437,6 +477,11 @@ class Monster {
     }
   }
   move() {
+    const temptations = this.cell.temptations(this.direction);
+    if (temptations.length && Math.random() < this.curiosity) {
+      if (temptations.length === 1) this.direction = temptations[0];
+      else this.direction = temptations[Math.random() > 0.5 ? 0 : 1];
+    }
     let c =
       this.direction &&
       !this.cell.walls[this.direction] &&
