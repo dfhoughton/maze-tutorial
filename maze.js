@@ -1,12 +1,24 @@
 window.onload = () => {
-  new Maze(document.getElementById("maze"));
+  const maze = new Maze(document.getElementById("maze"));
+  window.onkeydown = (e) => maze.keyDown(e.key);
 };
 
 class Maze {
   cells;
   start;
   finish;
-  constructor(table, rows = 60, columns = rows) {
+  slow;
+  state; // 'tunneling', 'paused', 'exploring', 'dead', 'escaped'
+  player;
+  monsters;
+  constructor(table, options = { rows: 50 }) {
+    let { rows, columns, slow, monsters } = options;
+    rows ??= 50;
+    columns ??= rows;
+    monsters ??= 10;
+    this.monsters = monsters; // initially a number, but later an array of Monsters
+    this.slow = slow ?? false;
+    this.state = "tunneling";
     // first we build all the cells
     const cells = (this.cells = []);
     for (let row = 0; row < rows; row++) {
@@ -16,6 +28,7 @@ class Maze {
       table.appendChild(tr);
       for (let column = 0; column < columns; column++) {
         const td = document.createElement("td");
+        td.innerHTML = "&nbsp;";
         td.classList.add("unused"); // initially everything is unused
         tr.appendChild(td);
         r.push(new Cell(this, td, row, column));
@@ -60,7 +73,7 @@ class Maze {
           const next = head.pickNextCell();
           if (next) {
             next.knockOutTheWalls(holeCount());
-            yield false; // still tunneling
+            if (maze.slow) yield false; // still tunneling
             queue.push(next);
           } else {
             queue.pop();
@@ -70,15 +83,15 @@ class Maze {
         if (
           !Object.entries(maze.finish.walls).some(([_side, status]) => !status)
         ) {
-          // end is enclose by walls, break one wall
+          // finnish is enclose by walls, break one wall
           const candidates = [];
-          for (const side of Object.keys(maze.end.walls)) {
-            const other = maze.end[side]();
+          for (const side of Object.keys(maze.finish.walls)) {
+            const other = maze.finish[side]();
             if (other) candidates.push(side);
           }
           const i = Math.floor(Math.random() * candidates.length);
           const side = candidates[i];
-          maze.end.digHole(side);
+          maze.finish.digHole(side);
           break;
         }
         // scan for a cell that has unused neighbors and start tunneling there
@@ -128,14 +141,58 @@ class Maze {
         } else {
           break;
         }
-        yield true; // done tunneling
       }
+      maze.state = "paused";
+      maze.placePlayers();
+      yield true;
     };
     // now we tunnel away
     const scoop = digger();
     const timer = setInterval(() => {
       if (scoop.next().value) clearInterval(timer);
     }, 0);
+  }
+  placePlayers() {
+    this.player = new Person(this.start);
+    const monsters = [];
+    const availableCells = [];
+    for (const row of this.cells) {
+      for (const cell of row) {
+        if (cell.unused() || cell === this.start) continue;
+        availableCells.push(cell);
+      }
+    }
+    for (let i = 0; i < this.monsters; i++) {
+      if (availableCells.length) {
+        const j = Math.floor(Math.random() * availableCells.length);
+        const cell = availableCells.splice(j, 1)[0];
+        monsters.push(new Monster(cell));
+      } else {
+        break;
+      }
+    }
+    this.monsters = monsters;
+    this.go();
+  }
+  go() {
+    const maze = this;
+    this.state = 'tunneling';
+    const play = function* () {
+      while (true) {
+        maze.monsters.forEach((m) => m.move());
+        if (maze.done()) yield true;
+        yield false;
+      }
+    };
+    const iterator = play();
+    const timer = setInterval(() => {
+      if (iterator.next().value) {
+        clearInterval(timer);
+        console.log("done");
+      } else {
+        console.log("stepped");
+      }
+    }, 250);
   }
   randomCell() {
     const x = Math.floor(Math.random() * (this.cells[0]?.length ?? 0));
@@ -152,6 +209,51 @@ class Maze {
     if (x >= 0 && y >= 0) {
       const row = this.cells[y];
       if (row) return row[x];
+    }
+  }
+  // restore a cell's contents to whatever it is without any occupants
+  restore(cell) {
+    if (cell === this.start) {
+      cell.cell.innerText = "S";
+    } else if (cell === this.finish) {
+      cell.cell.innerText = "E";
+    } else {
+      cell.cell.innerHTML = "&nbsp;";
+    }
+  }
+  escaped() {
+    this.state = "escaped";
+  }
+  dead() {
+    this.state = "dead";
+  }
+  done() {
+    return this.state === "escaped" || this.state === "dead";
+  }
+  keyDown(key) {
+    if (this.state === "tunneling") {
+      switch (key) {
+        case "i":
+        case "w":
+        case "ArrowUp":
+          this.player.move("top");
+          break;
+        case "s":
+        case "k":
+        case "ArrowDown":
+          this.player.move("bottom");
+          break;
+        case "a":
+        case "j":
+        case "ArrowLeft":
+          this.player.move("left");
+          break;
+        case "d":
+        case "l":
+        case "ArrowRight":
+          this.player.move("right");
+          break;
+      }
     }
   }
 }
@@ -280,6 +382,97 @@ class Cell {
         return "left";
       default:
         throw `where did side ${side} come from???`;
+    }
+  }
+  hasMonster() {
+    return this.cell.classList.contains("monster");
+  }
+  hasPerson() {
+    return this.cell.classList.contains("person");
+  }
+  unused() {
+    return this.cell.classList.contains("unused");
+  }
+  finish() {
+    return this.cell.classList.contains("end")
+  }
+}
+
+class Monster {
+  cell;
+  maze;
+  direction;
+  constructor(cell) {
+    this.cell = cell;
+    this.maze = cell.maze;
+    this.pickDirection();
+    this.cell.cell.classList.add("monster");
+    this.cell.cell.innerHTML = "&#x25cf;";
+  }
+  pickDirection() {
+    const options = [];
+    for (const [side, blocked] of Object.entries(this.cell.walls)) {
+      if (blocked) continue;
+      // monsters are blocked by other monsters
+      if (this.cell[side]().cell.classList.contains("monster")) continue;
+      options.push(side);
+    }
+    if (options.length === 0) {
+      this.direction = null;
+    } else if (options.length === 1) {
+      this.direction = options[0];
+    } else {
+      const i = Math.floor(Math.random() * options.length);
+      this.direction = options[i];
+    }
+  }
+  move() {
+    let c =
+      this.direction &&
+      !this.cell.walls[this.direction] &&
+      this.cell[this.direction]();
+    if (!c) {
+      this.pickDirection();
+      if (!this.direction) return; // could not move
+      c = this.cell[this.direction]();
+    }
+    // move out of the current cell
+    this.cell.cell.classList.remove("monster");
+    this.maze.restore(this.cell);
+    // move into the new cell
+    this.cell = c;
+    this.cell.cell.classList.add("monster");
+    this.cell.cell.innerHTML = "&#x25cf;";
+    // did the monster catch the person?
+    if (this.cell.hasPerson()) this.maze.dead();
+  }
+}
+
+class Person {
+  cell;
+  maze;
+  constructor(cell) {
+    this.cell = cell;
+    this.maze = cell.maze;
+    this.cell.cell.classList.add("person");
+    this.cell.cell.innerHTML = "&#x25cf;";
+  }
+  move(side) {
+    const c = this.cell[side]();
+    if (!this.cell.walls[side] && c) {
+      // move out of the current cell
+      this.cell.cell.classList.remove("person");
+      this.maze.restore(this.cell);
+      // move into the new cell
+      this.cell = c;
+      this.cell.cell.classList.add("person");
+      this.cell.cell.innerHTML = "&#x25cf;";
+      // did the monster catch the person?
+      if (this.cell.hasMonster()) {
+        this.maze.dead();
+      } else if (this.cell.finish()) {
+        this.maze.escaped();
+      }
     }
   }
 }
