@@ -328,7 +328,7 @@ class Maze {
     return this.state === "escaped" || this.state === "dead";
   }
   keyDown(key) {
-    if (this.state === "tunneling") {
+    if (this.state === "exploring") {
       switch (key) {
         case "i":
         case "w":
