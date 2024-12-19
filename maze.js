@@ -1,32 +1,66 @@
 window.onload = () => {
-  const maze = new Maze(document.getElementById("maze"));
+  // the thing that will hold the maze
+  const m = document.getElementById("maze");
+  // some buttons to control it
+  const start = document.getElementById("start");
+  const go = document.getElementById("go");
+  const tunnel = document.getElementById("tunnel");
+  const insta = document.getElementById("insta-maze");
+  const pause = document.getElementById("pause");
+  // the maze
+  const maze = new Maze(m, { start, go, tunnel, insta, pause });
   window.onkeydown = (e) => maze.keyDown(e.key);
 };
 
 class Maze {
+  table;
+  rows;
+  columns;
   cells;
   start;
   finish;
   slow;
+  speed; // delay between monster moves
   state; // 'tunneling', 'paused', 'exploring', 'dead', 'escaped'
   player;
+  monsterCount;
   monsters;
-  constructor(table, options = { rows: 50 }) {
-    let { rows, columns, slow, monsters } = options;
-    rows ??= 50;
-    columns ??= rows;
-    monsters ??= 10;
-    this.monsters = monsters; // initially a number, but later an array of Monsters
-    this.slow = slow ?? false;
-    this.state = "tunneling";
+  buttons;
+  constructor(table, buttons, options = {}) {
+    this.table = table;
+    // the defaults
+    const {
+      rows = 50,
+      columns = rows,
+      slow = true,
+      monsters = 10,
+      speed = 200,
+    } = options;
+    this.rows = rows;
+    this.columns = columns;
+    this.monsterCount = monsters;
+    this.speed = speed;
+    this.monsters = [];
+    this.cells = [];
+    this.slow = slow;
+    this.buttons = buttons;
+    this.initializeMaze();
+    this.initializeButtons();
+  }
+  initializeMaze() {
+    // clear everything
+    this.state = "paused";
+    Array.from(this.table.children).forEach((c) => this.table.removeChild(c));
+    this.cells.length = 0;
+    this.monsters.length = 0;
     // first we build all the cells
-    const cells = (this.cells = []);
-    for (let row = 0; row < rows; row++) {
+    const cells = this.cells;
+    for (let row = 0; row < this.rows; row++) {
       const tr = document.createElement("tr");
       const r = [];
       cells.push(r);
-      table.appendChild(tr);
-      for (let column = 0; column < columns; column++) {
+      this.table.appendChild(tr);
+      for (let column = 0; column < this.columns; column++) {
         const td = document.createElement("td");
         td.innerHTML = "&nbsp;";
         td.classList.add("unused"); // initially everything is unused
@@ -44,13 +78,71 @@ class Maze {
     const s = (this.start = this.randomCell());
     s.cell.classList.add("start");
     s.cell.innerText = "S";
-    const e = (this.finish = this.randomCell());
-    e.cell.classList.add("end");
-    e.cell.innerText = "E";
-    this.tunnel();
+    // make sure you don't accidentally make the start also the finish
+    let e = s;
+    while (e === s) {
+      e = this.randomCell();
+      if (e !== s) {
+        this.finish = e;
+        e.cell.classList.add("end");
+        e.cell.innerText = "E";
+      }
+    }
   }
-  tunnel() {
+  initializeButtons() {
+    const { start, go, tunnel, insta, pause } = this.buttons;
+    start.disabled = false;
+    tunnel.disabled = false;
+    insta.disabled = false;
+    start.onclick = () => {
+      go.disabled = true;
+      pause.disabled = true;
+      this.initializeMaze();
+      tunnel.disabled = false;
+      insta.disabled = false;
+    };
+    tunnel.onclick = () => {
+      start.disabled = true;
+      insta.disabled = true;
+      this.slow = true;
+      this.tunnel(() => {
+        this.placePlayers();
+        start.disabled = false;
+        tunnel.disabled = true;
+        go.disabled = false;
+        go.focus();
+      });
+    };
+    insta.onclick = () => {
+      start.disabled = true;
+      tunnel.disabled = true;
+      this.slow = false;
+      this.tunnel(() => {
+        this.placePlayers();
+        start.disabled = false;
+        insta.disabled = true;
+        go.disabled = false;
+        go.focus();
+      });
+    };
+    go.onclick = () => {
+      this.go();
+      pause.disabled = false;
+      go.disabled = true;
+    };
+    pause.onclick = () => {
+      if (this.state === "paused") {
+        pause.innerText = "Pause";
+        this.state = "exploring";
+      } else {
+        pause.innerText = "Resume";
+        this.state = "paused";
+      }
+    };
+  }
+  tunnel(callback) {
     // initialize branchiness probabilities
+    this.state = "tunneling";
     let t1 = Math.random();
     t1 = t1 + (1 - t1) * Math.random(); // the two branch state gets an extra helping of probability
     const t2 = t1 + (1 - t1) * Math.random();
@@ -149,12 +241,14 @@ class Maze {
     // now we tunnel away
     const scoop = digger();
     const timer = setInterval(() => {
-      if (scoop.next().value) clearInterval(timer);
+      if (scoop.next().value) {
+        clearInterval(timer);
+        callback();
+      }
     }, 0);
   }
   placePlayers() {
     this.player = new Person(this.start);
-    const monsters = [];
     const availableCells = [];
     for (const row of this.cells) {
       for (const cell of row) {
@@ -162,25 +256,25 @@ class Maze {
         availableCells.push(cell);
       }
     }
-    for (let i = 0; i < this.monsters; i++) {
+    for (let i = 0; i < this.monsterCount; i++) {
       if (availableCells.length) {
         const j = Math.floor(Math.random() * availableCells.length);
         const cell = availableCells.splice(j, 1)[0];
-        monsters.push(new Monster(cell));
+        this.monsters.push(new Monster(cell));
       } else {
         break;
       }
     }
-    this.monsters = monsters;
-    this.go();
   }
   go() {
     const maze = this;
-    this.state = "tunneling";
+    this.state = "exploring";
     const play = function* () {
       while (true) {
-        maze.monsters.forEach((m) => m.move());
-        if (maze.done()) yield true;
+        if (maze.state === "exploring") {
+          maze.monsters.forEach((m) => m.move());
+          if (maze.done()) yield true;
+        }
         yield false;
       }
     };
@@ -188,11 +282,8 @@ class Maze {
     const timer = setInterval(() => {
       if (iterator.next().value) {
         clearInterval(timer);
-        console.log("done");
-      } else {
-        console.log("stepped");
       }
-    }, 250);
+    }, this.speed);
   }
   randomCell() {
     const x = Math.floor(Math.random() * (this.cells[0]?.length ?? 0));
@@ -224,10 +315,14 @@ class Maze {
   escaped() {
     this.state = "escaped";
     this.player.cell.message("w00t!", true);
+    const { pause } = this.buttons;
+    pause.disabled = true;
   }
   dead() {
     this.state = "dead";
     this.player.cell.message("Oh, noes!", false);
+    const { pause } = this.buttons;
+    pause.disabled = true;
   }
   done() {
     return this.state === "escaped" || this.state === "dead";

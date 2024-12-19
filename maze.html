@@ -9,14 +9,29 @@
         --treasure-color: gold;
         --person-color: blue;
       }
+      .container {
+        position: relative;
+        .sidebar {
+          position: absolute;
+          top: 10rem;
+          right: 10rem;
+          padding: 1rem;
+          border: 4px solid black;
+          border-radius: 1rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+      }
       table#maze {
         /* general maze stuff */
         margin: 10rem auto;
         border-collapse: collapse;
         font-size: smaller;
         td {
-          width: 14px;
-          height: 14px;
+          width: 13px;
+          height: 13px;
           border: 1px solid #ccc;
           text-align: center;
           &.unused {
@@ -89,6 +104,15 @@
     <script src="maze.js"></script>
   </head>
   <body>
-    <table id="maze"></table>
+    <div class="container">
+      <table id="maze"></table>
+      <div class="sidebar">
+        <button id="start" disabled>Start</button>
+        <button id="tunnel" disabled>Tunnel</button>
+        <button id="insta-maze" disabled>Insta-Maze</button>
+        <button id="pause" disabled>Pause</button>
+        <button id="go" disabled>GO!</button>
+      </div>
+    </div>
   </body>
 </html>
