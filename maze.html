@@ -22,6 +22,24 @@
           flex-direction: column;
           align-items: center;
           gap: 1rem;
+          button,
+          #present {
+            cursor: pointer;
+          }
+          #present {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1px;
+            border: 3px solid var(--treasure-color);
+            border-radius: 1rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            &:active,
+            &:hover {
+              background-color: var(--treasure-color);
+            }
+          }
         }
       }
       table#maze {
@@ -100,6 +118,50 @@
           }
         }
       }
+      /* The Modal (background) */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0); /* Fallback color */
+        background-color: rgba(0, 255, 0, 0.4); /* Red w/ opacity */
+        /* Modal Content */
+        .modal-content {
+          background-color: white;
+          margin: auto;
+          overflow: auto;
+          max-height: 40rem;
+          padding: 20px;
+          border: 3px solid var(--danger-color);
+          border-radius: 2rem;
+          width: 60%;
+          .header {
+            display: flex;
+            justify-content: center;
+          }
+        }
+
+        /* The Close Button */
+        .close {
+          color: #aaaaaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+          color: #000;
+          text-decoration: none;
+          cursor: pointer;
+        }
+      }
     </style>
     <script src="maze.js"></script>
   </head>
@@ -107,11 +169,89 @@
     <div class="container">
       <table id="maze"></table>
       <div class="sidebar">
-        <button id="start" disabled>Start</button>
+        <span id="present">&#127873;</span>
+        <button id="start" disabled>Layout</button>
         <button id="tunnel" disabled>Tunnel</button>
         <button id="insta-maze" disabled>Insta-Maze</button>
         <button id="pause" disabled>Pause</button>
         <button id="go" disabled>GO!</button>
+      </div>
+    </div>
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        <div class="header">
+          <h1>Merry Christmas, Morgen!</h1>
+        </div>
+        <p>
+          This maze generator is meant to be a jumping off point for endless
+          experimentation. I hope it is fun in its own right, but I also hope
+          you will improve it. Some ideas to get things going:
+        </p>
+        <ul>
+          <li>Add treasure!</li>
+          <li>
+            Improve the maze generation algorithm so there is more variety.
+          </li>
+          <li>Add a clock so one can time oneself.</li>
+          <li>
+            Replace the generic random number generator it uses with a seeded
+            one, so you can display a maze's seed and then regenerate the maze
+            with that seed if you like it.
+          </li>
+          <li>
+            Make it a two player game &mdash; one player gets the WASD keys and
+            the other, IJKL.
+          </li>
+          <li>Improve the monsters' AI.</li>
+          <li>Let the user configure monster speed, etc.</li>
+          <li>&hellip;</li>
+        </ul>
+        <p>I would be happy to help you do all of these things and more.</p>
+        <div class="header">
+          <h2>Goal</h2>
+        </div>
+        <p>
+          You are a little blue dot. You will appear on the starting square. Get
+          to the end square, marked by an "E", and avoid being tagged by a
+          monster. The monsters are the red dots.
+        </p>
+        <div class="header">
+          <h2>Controls</h2>
+        </div>
+        <p>
+          You can go up, down, left, and right. There are three sets of keys,
+          all of which work:
+        </p>
+        <h3>The arrow keys</h3>
+        <p>These do what you would expect, but they also move the screen.</p>
+        <h3>WASD</h3>
+        <ul>
+          <li>w &rarr; up</li>
+          <li>a &rarr; left</li>
+          <li>s &rarr; down</li>
+          <li>d &rarr; right</li>
+        </ul>
+        <h3>IJKL</h3>
+        <ul>
+          <li>i &rarr; up</li>
+          <li>j &rarr; left</li>
+          <li>k &rarr; down</li>
+          <li>l &rarr; right</li>
+        </ul>
+        <div class="header">
+          <h2>Buttons</h2>
+        </div>
+        <p>You'll figure these out by messing around.</p>
+        <div class="header">
+          <h2>Dedication</h2>
+        </div>
+        <p>
+          This is dedicated to you, of course, but also to Jude. It is inspired
+          in part by his
+          <a href="https://github.com/TurkeyMcMac/mmmaze">Monster Money Maze</a
+          >. We miss you, Jude.
+        </p>
       </div>
     </div>
   </body>

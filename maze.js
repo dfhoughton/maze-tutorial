@@ -1,3 +1,4 @@
+// wire things together as soon as we can
 window.onload = () => {
   // the thing that will hold the maze
   const m = document.getElementById("maze");
@@ -9,7 +10,33 @@ window.onload = () => {
   const pause = document.getElementById("pause");
   // the maze
   const maze = new Maze(m, { start, go, tunnel, insta, pause });
-  window.onkeydown = (e) => maze.keyDown(e.key);
+  // modal
+  const present = document.getElementById("present");
+  const modal = document.getElementById("modal");
+  const closer = document.getElementById("close-modal");
+  function mode(on) {
+    if (on) {
+      modal.style.display = "block";
+      maze.modalOn();
+    } else {
+      modal.style.display = "none";
+      maze.modalOff();
+    }
+  }
+  present.onclick = () => mode(true);
+  closer.onclick = () => mode(false);
+  // click handler
+  window.onclick = (event) => {
+    if (event.target == modal) mode(false);
+  };
+  // keypress handler
+  window.onkeydown = (event) => {
+    if (event.key === "Escape" && maze.state === "modal") {
+      mode(false);
+    } else {
+      maze.keyDown(event.key);
+    }
+  };
 };
 
 class Maze {
@@ -21,16 +48,17 @@ class Maze {
   finish;
   slow;
   speed; // delay between monster moves
-  state; // 'tunneling', 'paused', 'exploring', 'dead', 'escaped'
+  state; // 'tunneling', 'paused', 'exploring', 'dead', 'escaped', 'modal'
   player;
   monsterCount;
   monsters;
   buttons;
+  suspendedState;
   constructor(table, buttons, options = {}) {
     this.table = table;
     // the defaults
     const {
-      rows = 50,
+      rows = 48,
       columns = rows,
       slow = true,
       monsters = 10,
@@ -156,6 +184,10 @@ class Maze {
     };
     // how we will tunnel
     const maze = this;
+    // a generator function! (note the asterisk and the "yield"s)
+    // this allows us to generate the labyrinth one step at a time allowing
+    // the browser to redraw in the pause between steps
+    // the generator returns true to indicate it is done and false otherwise
     const digger = function* () {
       maze.start.knockOutTheWalls(holeCount());
       const queue = [maze.start];
@@ -266,9 +298,12 @@ class Maze {
       }
     }
   }
+  // begin play
   go() {
     const maze = this;
     this.state = "exploring";
+    // another generator function, which allows the maze to react to
+    // player actions between monster movements
     const play = function* () {
       while (true) {
         if (maze.state === "exploring") {
@@ -294,7 +329,7 @@ class Maze {
     return row === this.cells.length - 1;
   }
   rightmostColumn(column) {
-    return column === this.cells[0]?.length - 1;
+    return column === (this.cells[0]?.length ?? 0) - 1;
   }
   cell(x, y) {
     if (x >= 0 && y >= 0) {
@@ -352,6 +387,14 @@ class Maze {
           break;
       }
     }
+  }
+  modalOn() {
+    this.suspendedState = this.state;
+    this.state = "modal";
+  }
+  modalOff() {
+    this.state = this.suspendedState;
+    this.suspendedState = undefined;
   }
 }
 
