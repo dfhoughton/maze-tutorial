@@ -1,3 +1,10 @@
+const defaultConfiguration = {
+  rows: 48,
+  slow: true,
+  monsters: 10,
+  speed: 250, // delay between monster moves
+};
+
 // wire things together as soon as we can
 window.onload = () => {
   // the thing that will hold the maze
@@ -47,7 +54,7 @@ class Maze {
   start;
   finish;
   slow;
-  speed; // delay between monster moves
+  speed;
   state; // 'tunneling', 'paused', 'exploring', 'dead', 'escaped', 'modal'
   player;
   monsterCount;
@@ -58,12 +65,12 @@ class Maze {
     this.table = table;
     // the defaults
     const {
-      rows = 48,
+      rows,
       columns = rows,
-      slow = true,
-      monsters = 10,
-      speed = 200,
-    } = options;
+      slow,
+      monsters,
+      speed,
+    } = { ...defaultConfiguration, ...options };
     this.rows = rows;
     this.columns = columns;
     this.monsterCount = monsters;
