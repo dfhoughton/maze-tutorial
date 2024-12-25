@@ -162,19 +162,32 @@
           cursor: pointer;
         }
       }
+      .hidden {
+        display: none;
+      }
     </style>
     <script src="maze.js"></script>
   </head>
   <body>
     <div class="container">
-      <table id="maze"></table>
+      <table id="maze" class="hidden" data-display-order="6"></table>
       <div class="sidebar">
         <span id="present">&#127873;</span>
-        <button id="start" disabled>Layout</button>
-        <button id="tunnel" disabled>Tunnel</button>
-        <button id="insta-maze" disabled>Insta-Maze</button>
-        <button id="pause" disabled>Pause</button>
-        <button id="go" disabled>GO!</button>
+        <button id="start" class="hidden" data-display-order="1" disabled>
+          Layout
+        </button>
+        <button id="tunnel" class="hidden" data-display-order="2" disabled>
+          Tunnel
+        </button>
+        <button id="insta-maze" class="hidden" data-display-order="3" disabled>
+          Insta-Maze
+        </button>
+        <button id="pause" class="hidden" data-display-order="4" disabled>
+          Pause
+        </button>
+        <button id="go" class="hidden" data-display-order="5" disabled>
+          GO!
+        </button>
       </div>
     </div>
     <div id="modal" class="modal">
@@ -189,6 +202,7 @@
           you will improve it. Some ideas to get things going:
         </p>
         <ul>
+          <li>Maybe first remove the present unwrapping shpiel.</li>
           <li>Add treasure!</li>
           <li>
             Improve the maze generation algorithm so there is more variety.
@@ -224,7 +238,7 @@
           all of which work:
         </p>
         <h3>The arrow keys</h3>
-        <p>These do what you would expect, but they also move the screen.</p>
+        <p>These do what you would expect but they also move the screen.</p>
         <h3>WASD</h3>
         <ul>
           <li>w &rarr; up</li>

@@ -30,7 +30,33 @@ window.onload = () => {
       maze.modalOff();
     }
   }
-  present.onclick = () => mode(true);
+  let cleared = false;
+  present.onclick = () => {
+    if (cleared) {
+      mode(true);
+      return;
+    }
+    const actions = [];
+    const elementsToDisplayInOrder = Array.from(
+      document.getElementsByClassName("hidden")
+    )
+      .map((e) => [e, Number.parseInt(e.getAttribute("data-display-order"))])
+      .sort((a, b) => a[1] - b[1])
+      .map((pair) => pair[0]);
+    elementsToDisplayInOrder.forEach((e) =>
+      actions.push(() => e.classList.remove("hidden"))
+    );
+    actions.push(() => mode(true));
+    const timer = setInterval(() => {
+      const a = actions.shift();
+      if (a) {
+        a();
+      } else {
+        cleared = true;
+        clearInterval(timer);
+      }
+    }, 500);
+  };
   closer.onclick = () => mode(false);
   // click handler
   window.onclick = (event) => {
