@@ -45,7 +45,10 @@ window.onload = () => {
       .sort((a, b) => a[1] - b[1])
       .map((pair) => pair[0]);
     elementsToDisplayInOrder.forEach((e) =>
-      actions.push(() => e.classList.remove("hidden"))
+      actions.push(() => {
+        e.classList.remove("hidden");
+        e.classList.add("fade-in");
+      })
     );
     actions.push(() => mode(true));
     const timer = setInterval(() => {
