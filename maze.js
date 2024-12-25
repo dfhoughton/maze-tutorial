@@ -1,3 +1,4 @@
+// putting these parameters here so they're easy to find and tinker with
 const defaultConfiguration = {
   rows: 48,
   slow: true,
