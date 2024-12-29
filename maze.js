@@ -1,6 +1,6 @@
 // putting these parameters here so they're easy to find and tinker with
 const defaultConfiguration = {
-  rows: 48,
+  rows: 60,
   slow: true,
   monsters: 10,
   speed: 250, // delay between monster moves
@@ -31,35 +31,8 @@ window.onload = () => {
       maze.modalOff();
     }
   }
-  let cleared = false;
   present.onclick = () => {
-    if (cleared) {
-      mode(true);
-      return;
-    }
-    const actions = [];
-    const elementsToDisplayInOrder = Array.from(
-      document.getElementsByClassName("hidden")
-    )
-      .map((e) => [e, Number.parseInt(e.getAttribute("data-display-order"))])
-      .sort((a, b) => a[1] - b[1])
-      .map((pair) => pair[0]);
-    elementsToDisplayInOrder.forEach((e) =>
-      actions.push(() => {
-        e.classList.remove("hidden");
-        e.classList.add("fade-in");
-      })
-    );
-    actions.push(() => mode(true));
-    const timer = setInterval(() => {
-      const a = actions.shift();
-      if (a) {
-        a();
-      } else {
-        cleared = true;
-        clearInterval(timer);
-      }
-    }, 500);
+    mode(true);
   };
   closer.onclick = () => mode(false);
   // click handler

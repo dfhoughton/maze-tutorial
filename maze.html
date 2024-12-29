@@ -4,10 +4,10 @@
     <style>
       :root {
         /* Colors! Please improve this palette. */
-        --danger-color: red;
-        --success-color: green;
-        --treasure-color: gold;
-        --person-color: blue;
+        --danger-color: rgb(102, 168, 10);
+        --success-color: rgb(245, 45, 191);
+        --treasure-color: rgb(255, 128, 219);
+        --person-color: rgb(65, 6, 166);
       }
       .container {
         position: relative;
@@ -56,7 +56,7 @@
             background-color: #ddd;
           }
           &.start {
-            background-color: rgba(0, 255, 0, 0.5);
+            background-color: rgba(80, 225, 238, 0.5);
           }
           &.end {
             background-color: var(--treasure-color);
@@ -162,38 +162,27 @@
           cursor: pointer;
         }
       }
-      /* present unwrapping trickery */
-      .hidden {
-        display: none;
-      }
-      @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-      }
-      .fade-in {
-        animation: fadeIn 1s;
-      }
     </style>
     <script src="maze.js"></script>
   </head>
   <body>
     <div class="container">
-      <table id="maze" class="hidden" data-display-order="6"></table>
+      <table id="maze"></table>
       <div class="sidebar">
         <span id="present">&#127873;</span>
-        <button id="start" class="hidden" data-display-order="1" disabled>
+        <button id="start"disabled>
           Layout
         </button>
-        <button id="tunnel" class="hidden" data-display-order="2" disabled>
+        <button id="tunnel" disabled>
           Tunnel
         </button>
-        <button id="insta-maze" class="hidden" data-display-order="3" disabled>
+        <button id="insta-maze" disabled>
           Insta-Maze
         </button>
-        <button id="pause" class="hidden" data-display-order="4" disabled>
+        <button id="pause" disabled>
           Pause
         </button>
-        <button id="go" class="hidden" data-display-order="5" disabled>
+        <button id="go" disabled>
           GO!
         </button>
       </div>
