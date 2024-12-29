@@ -1,45 +1,45 @@
 I am using this document to jot down thoughts about using this bit of code as a tutorial.
 
-- Meta-points
-  - mostly this is about building a mental framework to think about things
-  - history of programming
-    - in the early days, programmers were cheap and computers, expensive
-      - the programmer strove to think like a computer
-    - nowadays it's the programmers who are expensive
-      - the programmer strives to think like *other programmers* who need to understand the code
-      - the computer still exercizes no creativity or independent choice, but it's good follows human-oriented code well enough
-  - it takes a while to develop fluency, but this is something that comes with practice
-    - pleasure in the process is paramount
-    - take breaks
-- regarding maze generator
-  - Point out the three parts: HTML, CSS, javascript
-    - HTML: the framework of the page
-    - CSS: lipstick and finery
-    - javascript: makes the page change, perhaps in reaction to what the user does
-  - Elements of a program
-    - some sort of entry point
-    - reactive/asynchronous vs procedural
-    - loops
-    - variables
-    - DRY
-    - objects/classes
-    - functions/closures
-    - comments
-    - side effects
-    - APIs
-  - more esoteric javascript/HTML stuff
-    - DOM
-    - generators
-    - timeouts
-    - events
-    - the rendering cycle
-- more esoteric programming concepts
-  - types
-  - inheritance
-  - caching
-  - functional programming
-- important programming skills
-  - typing
-  - googling
-  - version control
-  - dealing with other programmers
+ - [ ] Meta-points
+   - [ ] mostly this is about building a mental framework to think about things
+   - [ ] history of programming
+     - [ ] in the early days, programmers were cheap and computers, expensive
+       - [ ] the programmer strove to think like a computer
+     - [ ] nowadays it's the programmers who are expensive
+       - [ ] the programmer strives to think like *other programmers* who need to understand the code
+       - [ ] the computer still exercizes no creativity or independent choice, but it's good follows human-oriented code well enough
+   - [ ] it takes a while to develop fluency, but this is something that comes with practice
+     - [ ] pleasure in the process is paramount
+     - [ ] take breaks
+ - [ ] regarding maze generator
+   - [ ] Point out the three parts: HTML, CSS, javascript
+     - [ ] HTML: the framework of the page
+     - [ ] CSS: lipstick and finery
+     - [ ] javascript: makes the page change, perhaps in reaction to what the user does
+   - [ ] Elements of a program
+     - [ ] some sort of entry point
+     - [ ] reactive/asynchronous vs procedural
+     - [ ] loops
+     - [ ] variables
+     - [ ] DRY
+     - [ ] objects/classes
+     - [ ] functions/closures
+     - [ ] comments
+     - [ ] side effects
+     - [ ] APIs
+   - [ ] more esoteric javascript/HTML stuff
+     - [ ] DOM
+     - [ ] generators
+     - [ ] timeouts
+     - [ ] events
+     - [ ] the rendering cycle
+ - [ ] more esoteric programming concepts
+   - [ ] types
+   - [ ] inheritance
+   - [ ] caching
+   - [ ] functional programming
+ - [ ] important programming skills
+   - [ ] typing
+   - [ ] googling
+   - [ ] version control
+   - [ ] dealing with other programmers
