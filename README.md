@@ -13,3 +13,8 @@ I needed to make a Christmas present for my nephew Morgen and it occurred to me 
 learn programming skills, so I could improve the maze generator, dress it up in Christmas finery, and
 continue as above: learn by improving existing code. In a week or so Oscar may join in this version
 of the tutorial.
+
+My son Jude should be teaching this tutorial, not me. He was a better programmer and Morgen's peer. Well,
+here's to you, Jude. We miss you.
+
+[Jude's version of this project.](https://github.com/TurkeyMcMac/mmmaze)
