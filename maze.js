@@ -141,16 +141,16 @@ class Maze {
     }
     // pick start and finish cells
     const s = (this.start = this.randomCell());
-    s.cell.classList.add("start");
-    s.cell.innerText = "S";
+    s.td.classList.add("start");
+    s.td.innerText = "S";
     // make sure you don't accidentally make the start also the finish
     let e = s;
     while (e === s) {
       e = this.randomCell();
       if (e !== s) {
         this.finish = e;
-        e.cell.classList.add("end");
-        e.cell.innerText = "E";
+        e.td.classList.add("end");
+        e.td.innerText = "E";
       }
     }
   }
@@ -377,11 +377,11 @@ class Maze {
   // restore a cell's contents to whatever it is without any occupants
   restore(cell) {
     if (cell === this.start) {
-      cell.cell.innerText = "S";
+      cell.td.innerText = "S";
     } else if (cell === this.finish) {
-      cell.cell.innerText = "E";
+      cell.td.innerText = "E";
     } else {
-      cell.cell.innerHTML = "&nbsp;";
+      cell.td.innerHTML = "&nbsp;";
     }
   }
   escaped() {
@@ -437,14 +437,14 @@ class Maze {
 
 class Cell {
   maze;
-  cell;
+  td;
   row;
   column;
   walls;
   done;
   constructor(maze, cell, row, column) {
     this.maze = maze;
-    this.cell = cell;
+    this.td = cell;
     this.row = row;
     this.column = column;
     this.walls = { top: null, bottom: null, left: null, right: null };
@@ -471,7 +471,7 @@ class Cell {
   }
   knockOutTheWalls(desiredHoles) {
     this.done = true;
-    this.cell.classList.remove("unused");
+    this.td.classList.remove("unused");
     let availableWalls = [];
     let holeCount = 0;
     for (const [k, v] of Object.entries(this.walls)) {
@@ -529,22 +529,22 @@ class Cell {
   }
   buildWall(side) {
     this.walls[side] = true;
-    this.cell.classList.add(side);
+    this.td.classList.add(side);
     const other = this[side]();
     if (other) {
       const oppositeSide = this.opposite(side);
       other.walls[oppositeSide] = true;
-      other.cell.classList.add(oppositeSide);
+      other.td.classList.add(oppositeSide);
     }
   }
   digHole(side) {
     this.walls[side] = false;
-    this.cell.classList.add(`no-${side}`);
+    this.td.classList.add(`no-${side}`);
     const other = this[side]();
     if (other) {
       const oppositeSide = this.opposite(side);
       other.walls[oppositeSide] = false;
-      other.cell.classList.add(`no-${oppositeSide}`);
+      other.td.classList.add(`no-${oppositeSide}`);
     }
   }
   opposite(side) {
@@ -600,24 +600,24 @@ class Cell {
     }
   }
   hasMonster() {
-    return this.cell.classList.contains("monster");
+    return this.td.classList.contains("monster");
   }
   hasPerson() {
-    return this.cell.classList.contains("person");
+    return this.td.classList.contains("person");
   }
   unused() {
-    return this.cell.classList.contains("unused");
+    return this.td.classList.contains("unused");
   }
   finish() {
-    return this.cell.classList.contains("end");
+    return this.td.classList.contains("end");
   }
   message(msg, isGood) {
-    this.cell.classList.add("message-anchor");
+    this.td.classList.add("message-anchor");
     const container = document.createElement("span");
     container.classList.add("message");
     container.classList.add(isGood ? "good" : "bad");
     container.innerText = msg;
-    this.cell.appendChild(container);
+    this.td.appendChild(container);
   }
 }
 
@@ -631,15 +631,15 @@ class Monster {
     this.maze = cell.maze;
     this.curiosity = curiosity ?? 0.2 + Math.random();
     this.pickDirection();
-    this.cell.cell.classList.add("monster");
-    this.cell.cell.innerHTML = "&#x25cf;";
+    this.cell.td.classList.add("monster");
+    this.cell.td.innerHTML = "&#x25cf;";
   }
   pickDirection() {
     const options = [];
     for (const [side, blocked] of Object.entries(this.cell.walls)) {
       if (blocked) continue;
       // monsters are blocked by other monsters
-      if (this.cell[side]().cell.classList.contains("monster")) continue;
+      if (this.cell[side]().td.classList.contains("monster")) continue;
       options.push(side);
     }
     if (options.length === 0) {
@@ -667,12 +667,12 @@ class Monster {
       c = this.cell[this.direction]();
     }
     // move out of the current cell
-    this.cell.cell.classList.remove("monster");
+    this.cell.td.classList.remove("monster");
     this.maze.restore(this.cell);
     // move into the new cell
     this.cell = c;
-    this.cell.cell.classList.add("monster");
-    this.cell.cell.innerHTML = "&#x25cf;";
+    this.cell.td.classList.add("monster");
+    this.cell.td.innerHTML = "&#x25cf;";
     // did the monster catch the person?
     if (this.cell.hasPerson()) this.maze.dead();
   }
@@ -684,19 +684,19 @@ class Person {
   constructor(cell) {
     this.cell = cell;
     this.maze = cell.maze;
-    this.cell.cell.classList.add("person");
-    this.cell.cell.innerHTML = "&#x25cf;";
+    this.cell.td.classList.add("person");
+    this.cell.td.innerHTML = "&#x25cf;";
   }
   move(side) {
     const c = this.cell[side]();
     if (!this.cell.walls[side] && c) {
       // move out of the current cell
-      this.cell.cell.classList.remove("person");
+      this.cell.td.classList.remove("person");
       this.maze.restore(this.cell);
       // move into the new cell
       this.cell = c;
-      this.cell.cell.classList.add("person");
-      this.cell.cell.innerHTML = "&#x25cf;";
+      this.cell.td.classList.add("person");
+      this.cell.td.innerHTML = "&#x25cf;";
       // did the monster catch the person?
       if (this.cell.hasMonster()) {
         this.maze.dead();
