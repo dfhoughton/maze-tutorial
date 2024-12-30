@@ -7,6 +7,8 @@ const defaultConfiguration = {
   minStartDistance: 16, //vertical and horizontal distance between start space and end space
 };
 
+/* some utility functions */
+
 // pick a random whole number between 0 and topOfRange inclusive
 function randy(topOfRange) {
   return Math.floor(Math.random() * topOfRange);
@@ -15,6 +17,16 @@ function randy(topOfRange) {
 function pickFrom(list) {
   if (list.length === 1) return list[0];
   return list[randy(list.length)];
+}
+// fix position of a monster/person span relative to its containing cell
+function center(td) {
+  const { width: outerWidth, height: outerHeight } = td.getBoundingClientRect();
+  const being = td.children[0]; // the span
+  const { width: innerWidth, height: innerHeight } =
+    being.getBoundingClientRect();
+  const top = (outerHeight - innerHeight) / 2;
+  const left = (outerWidth - innerWidth) / 2;
+  being.setAttribute("style", `top: ${top}px; left: ${left}px`);
 }
 
 // wire things together as soon as we can
@@ -619,6 +631,10 @@ class Monster {
     this.pickDirection();
     this.cell.td.classList.add("monster");
     this.cell.td.innerHTML = this.image;
+    this.center();
+  }
+  center() {
+    center(this.cell.td);
   }
   pickDirection() {
     const options = [];
@@ -654,6 +670,7 @@ class Monster {
     this.cell = c;
     this.cell.td.classList.add("monster");
     this.cell.td.innerHTML = this.image;
+    this.center();
     // did the monster catch the person?
     if (this.cell.hasPerson()) this.maze.dead();
   }
@@ -669,6 +686,10 @@ class Person {
     this.cell.td.classList.add("person");
     this.image = "<span>&#x1F3C3;&#x1F3FF;&#x200D;&#x2640;&#xFE0F;</span>"; // dark-skinned woman running to the left
     this.cell.td.innerHTML = this.image;
+    this.center();
+  }
+  center() {
+    center(this.cell.td);
   }
   move(side) {
     const c = this.cell[side]();
@@ -681,6 +702,7 @@ class Person {
       this.cell.td.classList.add("person");
       this.cell.td.innerHTML = this.image;
       this.cell.td.children[0].classList.add(side);
+      this.center();
       // did the monster catch the person?
       if (this.cell.hasMonster()) {
         this.maze.dead();
