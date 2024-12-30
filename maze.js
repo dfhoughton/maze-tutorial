@@ -4,6 +4,7 @@ const defaultConfiguration = {
   slow: true,
   monsters: 10,
   speed: 250, // delay between monster moves
+  minStartDistance: 16, //vertical and horizontal distance between start space and end space
 };
 
 // pick a random whole number between 0 and topOfRange inclusive
@@ -74,6 +75,7 @@ class Maze {
   monsters;
   buttons;
   suspendedState;
+  minStartDistance;
   constructor(table, buttons, options = {}) {
     this.table = table;
     // the defaults
@@ -83,6 +85,7 @@ class Maze {
       slow,
       monsters,
       speed,
+      minStartDistance,
     } = { ...defaultConfiguration, ...options };
     this.rows = rows;
     this.columns = columns;
@@ -92,6 +95,7 @@ class Maze {
     this.cells = [];
     this.slow = slow;
     this.buttons = buttons;
+    this.minStartDistance = minStartDistance;
     this.initializeMaze();
     this.initializeButtons();
   }
@@ -128,14 +132,12 @@ class Maze {
     s.td.innerText = "S";
     // make sure you don't accidentally make the start also the finish
     let e = s;
-    while (e === s) {
+    while (e.manhattanDistanceFrom(s) < this.minStartDistance) {
       e = this.randomCell();
-      if (e !== s) {
-        this.finish = e;
-        e.td.classList.add("end");
-        e.td.innerText = "E";
-      }
     }
+    this.finish = e;
+    e.td.classList.add("end");
+    e.td.innerText = "E";
   }
   initializeButtons() {
     const { start, go, tunnel, insta, pause } = this.buttons;
@@ -585,6 +587,11 @@ class Cell {
     container.classList.add(isGood ? "good" : "bad");
     container.innerText = msg;
     this.td.appendChild(container);
+  }
+  manhattanDistanceFrom(otherCell) {
+    const verticalDistance = Math.abs(this.row - otherCell.row);
+    const horizontalDistance = Math.abs(this.column - otherCell.column);
+    return verticalDistance + horizontalDistance;
   }
 }
 
