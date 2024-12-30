@@ -1,10 +1,20 @@
 // putting these parameters here so they're easy to find and tinker with
 const defaultConfiguration = {
-  rows: 60,
+  rows: 40,
   slow: true,
   monsters: 10,
   speed: 250, // delay between monster moves
 };
+
+// pick a random whole number between 0 and topOfRange inclusive
+function randy(topOfRange) {
+  return Math.floor(Math.random() * topOfRange);
+}
+// pick a random item from the list
+function pickFrom(list) {
+  if (list.length === 1) return list[0];
+  return list[randy(list.length)];
+}
 
 // wire things together as soon as we can
 window.onload = () => {
@@ -223,9 +233,7 @@ class Maze {
             const other = maze.finish[side]();
             if (other) candidates.push(side);
           }
-          const i = Math.floor(Math.random() * candidates.length);
-          const side = candidates[i];
-          maze.finish.digHole(side);
+          maze.finish.digHole(pickFrom(candidates));
           break;
         }
         // scan for a cell that has unused neighbors and start tunneling there
@@ -245,13 +253,7 @@ class Maze {
         }
         // now pick a candidate
         if (candidates.length) {
-          let candidate;
-          if (candidates.length === 1) {
-            candidate = candidates[0];
-          } else {
-            const i = Math.floor(Math.random() * candidates.length);
-            candidate = candidates[i];
-          }
+          const candidate = pickFrom(candidates);
           const sides = [];
           for (const [side, blocked] of Object.entries(candidate.walls)) {
             if (!blocked) continue;
@@ -259,12 +261,8 @@ class Maze {
             if (c && !c.done) sides.push(side);
           }
           if (sides.length) {
-            if (sides.length === 1) {
-              candidate.digHole(sides[0]);
-            } else {
-              const i = Math.floor(Math.random() * sides.length);
-              candidate.digHole(sides[i]);
-            }
+            const side = pickFrom(sides);
+            candidate.digHole(side);
             queue.push(candidate);
             continue;
           } else {
@@ -300,7 +298,7 @@ class Maze {
     }
     for (let i = 0; i < this.monsterCount; i++) {
       if (availableCells.length) {
-        const j = Math.floor(Math.random() * availableCells.length);
+        const j = randy(availableCells.length);
         const cell = availableCells.splice(j, 1)[0];
         this.monsters.push(new Monster(cell));
       } else {
@@ -332,7 +330,7 @@ class Maze {
   }
   randomCell() {
     const x = Math.floor(Math.random() * (this.cells[0]?.length ?? 0));
-    const y = Math.floor(Math.random() * this.cells.length);
+    const y = randy(this.cells.length);
     return this.cell(x, y);
   }
   bottomRow(row) {
@@ -461,8 +459,8 @@ class Cell {
       }
     } else {
       while (availableWalls.length && holeCount < desiredHoles) {
-        const i = Math.floor(Math.random() * availableWalls.length);
-        const side = availableWalls.splice(i, 1)[0];
+        const whichWall = randy(availableWalls.length);
+        const side = availableWalls.splice(whichWall, 1)[0];
         this.digHole(side);
         holeCount += 1;
       }
@@ -481,11 +479,7 @@ class Cell {
         if (c && !c.done) available.push(c);
       }
     }
-    if (available.length) {
-      if (available.length === 1) return available[0];
-      const i = Math.floor(Math.random() * available.length);
-      return available[i];
-    }
+    if (available.length) return pickFrom(available);
   }
   // some methods to get useful neighbors
   left() {
@@ -594,18 +588,30 @@ class Cell {
   }
 }
 
+//  various monstrous emojis found at https://emojigraph.org/
+const monsterEmojis = [
+  "&#x1f47a;", // red Japanese goblin
+  "&#x1f98e;", // lizard
+  "&#x1F9DF;&#x200D;&#x2640;&#xFE0F;", // femaile zombie
+  "&#x1F9CC;", // troll
+  "&#x1F577;&#xFE0F;", // spider
+  "&#x1F40C;", // snail
+];
+
 class Monster {
   cell;
   maze;
   direction;
   curiosity;
+  image;
   constructor(cell, curiosity) {
     this.cell = cell;
     this.maze = cell.maze;
     this.curiosity = curiosity ?? 0.2 + Math.random();
+    this.image = "<span>" + pickFrom(monsterEmojis) + "</span>";
     this.pickDirection();
     this.cell.td.classList.add("monster");
-    this.cell.td.innerHTML = "&#x25cf;";
+    this.cell.td.innerHTML = this.image;
   }
   pickDirection() {
     const options = [];
@@ -617,12 +623,7 @@ class Monster {
     }
     if (options.length === 0) {
       this.direction = null;
-    } else if (options.length === 1) {
-      this.direction = options[0];
-    } else {
-      const i = Math.floor(Math.random() * options.length);
-      this.direction = options[i];
-    }
+    } else this.direction = pickFrom(options);
   }
   move() {
     const temptations = this.cell.temptations(this.direction);
@@ -645,7 +646,7 @@ class Monster {
     // move into the new cell
     this.cell = c;
     this.cell.td.classList.add("monster");
-    this.cell.td.innerHTML = "&#x25cf;";
+    this.cell.td.innerHTML = this.image;
     // did the monster catch the person?
     if (this.cell.hasPerson()) this.maze.dead();
   }
@@ -654,11 +655,13 @@ class Monster {
 class Person {
   cell;
   maze;
+  image;
   constructor(cell) {
     this.cell = cell;
     this.maze = cell.maze;
     this.cell.td.classList.add("person");
-    this.cell.td.innerHTML = "&#x25cf;";
+    this.image = "<span>&#x1F3C3;&#x1F3FF;&#x200D;&#x2640;&#xFE0F;</span>"; // dark-skinned woman running to the left
+    this.cell.td.innerHTML = this.image;
   }
   move(side) {
     const c = this.cell[side]();
@@ -669,7 +672,8 @@ class Person {
       // move into the new cell
       this.cell = c;
       this.cell.td.classList.add("person");
-      this.cell.td.innerHTML = "&#x25cf;";
+      this.cell.td.innerHTML = this.image;
+      this.cell.td.children[0].classList.add(side);
       // did the monster catch the person?
       if (this.cell.hasMonster()) {
         this.maze.dead();
