@@ -739,7 +739,6 @@ class Monster {
 // works like the monsterEmojis array but for people
 const people = [
   ["&#x1F3C3;&#x1F3FF;&#x200D;&#x2640;&#xFE0F;", "left"], // dark-skinned woman running
-  ["&#x1F9D1;&#x200D;&#x1F9BC;", "left"], // person in motorized wheelchair
   ["&#x1F483;", "right"], // woman dancing
   ["&#x1F93A;", "left"], // fencer
   ["&#x1F6B4;&#x200D;&#x2640;&#xFE0F;", "left"], // woman biking
