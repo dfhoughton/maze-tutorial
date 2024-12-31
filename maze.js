@@ -28,6 +28,55 @@ function center(td) {
   const left = (outerWidth - innerWidth) / 2;
   being.setAttribute("style", `top: ${top}px; left: ${left}px`);
 }
+// converts a base direction of an image and a direction of movement to a CSS class
+// which will rotate the base image correctly to appear to be moving in that direction
+function orient(baseDirection, directionOfMovement) {
+  switch (baseDirection) {
+    case "top":
+      switch (directionOfMovement) {
+        case "top":
+          return "left"; // does nothing
+        case "bottom":
+          return "flip";
+        case "left":
+          return "bottom";
+        case "right":
+          return "top";
+        default:
+          throw `how did we get direction ${directionOfMovement}?!`;
+      }
+    case "bottom":
+      switch (directionOfMovement) {
+        case "top":
+          return "flip";
+        case "bottom":
+          return "left"; // does nothing
+        case "left":
+          return "top";
+        case "right":
+          return "bottom";
+        default:
+          throw `how did we get direction ${directionOfMovement}?!`;
+      }
+    case "left": // the default direction
+      return directionOfMovement;
+    case "right":
+      switch (directionOfMovement) {
+        case "top":
+          return "bottom";
+        case "bottom":
+          return "top";
+        case "left":
+          return "right";
+        case "right":
+          return "left";
+        default:
+          throw `how did we get direction ${directionOfMovement}?!`;
+      }
+    default:
+      throw `how did we get direction ${baseDirection}?!`;
+  }
+}
 
 // wire things together as soon as we can
 window.onload = () => {
@@ -607,27 +656,33 @@ class Cell {
   }
 }
 
-//  various monstrous emojis found at https://emojigraph.org/
+// various monstrous emojis found at https://emojigraph.org/
+// each item in the array pairs the HTML entity codes for the emoji to the direction it's facing
+// we want the direction so we can rotate the emojis to face their direction of movement
+// if they're facing forward, I just say they're facing left -- it works
 const monsterEmojis = [
-  "&#x1f47a;", // red Japanese goblin
-  "&#x1f98e;", // lizard
-  "&#x1F9DF;&#x200D;&#x2640;&#xFE0F;", // femaile zombie
-  "&#x1F9CC;", // troll
-  "&#x1F577;&#xFE0F;", // spider
-  "&#x1F40C;", // snail
+  ["&#x1f47a;", "right"], // red Japanese goblin
+  ["&#x1f98e;", "top"], // lizard
+  ["&#x1F9DF;&#x200D;&#x2640;&#xFE0F;", "left"], // femaile zombie
+  ["&#x1F9CC;", "left"], // troll
+  ["&#x1F577;&#xFE0F;", "top"], // spider
+  ["&#x1F40C;", "right"], // snail
 ];
 
 class Monster {
-  cell;
-  maze;
-  direction;
-  curiosity;
-  image;
+  cell; // the Cell object containing the monster in the maze
+  maze; // the Maze object containing the monster
+  direction; // the direction the monster is currently moving -- left, right, top, bottom
+  curiosity; // how likely the monster is to exploring openings it passes
+  baseDirection; // the way the monster image is facing without any rotation applied
+  image; // a snippet of HTML which renders the monster in the maze
   constructor(cell, curiosity) {
     this.cell = cell;
     this.maze = cell.maze;
     this.curiosity = curiosity ?? 0.2 + Math.random();
-    this.image = "<span>" + pickFrom(monsterEmojis) + "</span>";
+    const [emoji, baseDirection] = pickFrom(monsterEmojis);
+    this.baseDirection = baseDirection;
+    this.image = `<span>${emoji}</span>`;
     this.pickDirection();
     this.cell.td.classList.add("monster");
     this.cell.td.innerHTML = this.image;
@@ -670,11 +725,25 @@ class Monster {
     this.cell = c;
     this.cell.td.classList.add("monster");
     this.cell.td.innerHTML = this.image;
+    // make the monster face the direction it's moving
+    if (this.direction)
+      this.cell.td.children[0].classList.add(
+        orient(this.baseDirection, this.direction)
+      );
     this.center();
     // did the monster catch the person?
     if (this.cell.hasPerson()) this.maze.dead();
   }
 }
+
+// works like the monsterEmojis array but for people
+const people = [
+  ["&#x1F3C3;&#x1F3FF;&#x200D;&#x2640;&#xFE0F;", "left"], // dark-skinned woman running
+  ["&#x1F9D1;&#x200D;&#x1F9BC;", "left"], // person in motorized wheelchair
+  ["&#x1F483;", "right"], // woman dancing
+  ["&#x1F93A;", "left"], // fencer
+  ["&#x1F6B4;&#x200D;&#x2640;&#xFE0F;", "left"], // woman biking
+];
 
 class Person {
   cell;
@@ -684,7 +753,9 @@ class Person {
     this.cell = cell;
     this.maze = cell.maze;
     this.cell.td.classList.add("person");
-    this.image = "<span>&#x1F3C3;&#x1F3FF;&#x200D;&#x2640;&#xFE0F;</span>"; // dark-skinned woman running to the left
+    const [emoji, baseDirection] = pickFrom(people);
+    this.baseDirection = baseDirection;
+    this.image = `<span>${emoji}</span`;
     this.cell.td.innerHTML = this.image;
     this.center();
   }
@@ -701,7 +772,7 @@ class Person {
       this.cell = c;
       this.cell.td.classList.add("person");
       this.cell.td.innerHTML = this.image;
-      this.cell.td.children[0].classList.add(side);
+      this.cell.td.children[0].classList.add(orient(this.baseDirection, side));
       this.center();
       // did the monster catch the person?
       if (this.cell.hasMonster()) {
