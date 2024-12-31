@@ -426,7 +426,7 @@ class Maze {
   }
   dead() {
     this.state = "dead";
-    this.player.cell.td.innerHTML = '<span class="splat"> 💥 </span>';
+    this.player.cell.td.innerHTML = '<span class="splat"> &#x1F4A5; </span>';
     center(this.player.cell.td);
     this.player.cell.message("Oh, noes!", false);
     const { pause } = this.buttons;
