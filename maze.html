@@ -5,12 +5,15 @@
       :root {
         /* Colors! Please improve this palette. */
         --danger-color: rgb(102, 168, 10);
-        --success-color: rgb(245, 45, 191);
-        --treasure-color: rgb(255, 128, 219);
-        --person-color: 243, 236, 0; /* a warm yellow */
+        --success-color: rgb(139, 51, 157);
+        --treasure-color: rgb(234, 160, 255);
+        --person-color: 243, 236, 0;
+        /* a warm yellow */
       }
+
       .container {
         position: relative;
+
         .sidebar {
           position: absolute;
           top: 10rem;
@@ -22,10 +25,12 @@
           flex-direction: column;
           align-items: center;
           gap: 1rem;
+
           button,
           #present {
             cursor: pointer;
           }
+
           #present {
             display: flex;
             align-items: center;
@@ -35,6 +40,7 @@
             border-radius: 1rem;
             width: 1.5rem;
             height: 1.5rem;
+
             &:active,
             &:hover {
               background-color: var(--treasure-color);
@@ -42,86 +48,113 @@
           }
         }
       }
+
       table#maze {
         /* general maze stuff */
         margin: 10rem auto;
         border-collapse: collapse;
         font-size: smaller;
+
         td {
           width: 13px;
           height: 13px;
           border: 1px solid #ccc;
           text-align: center;
           position: relative;
+
           &.unused {
             background-color: #ddd;
           }
+
           &.start {
             background-color: rgba(80, 225, 238, 0.5);
           }
+
           &.end {
             background-color: var(--treasure-color);
           }
+
           &.top {
             border-top: 2px solid black;
           }
+
           &.bottom {
             border-bottom: 2px solid black;
           }
+
           &.left {
             border-left: 2px solid black;
           }
+
           &.right {
             border-right: 2px solid black;
           }
+
           &.no-top {
             border-top: none;
           }
+
           &.no-bottom {
             border-bottom: none;
           }
+
           &.no-left {
             border-left: none;
           }
+
           &.no-right {
             border-right: none;
           }
+
+          .splat {
+            font-size: 50px;
+          }
+
           /* the mobile things */
           &.person {
-            background-color: rgba(
-              var(--person-color),
-              0.5
-            ); /* highlight the runner's cell */
+            background-color: rgba(var(--person-color), 0.5);
+            /* highlight the runner's cell */
           }
+
           &.monster {
             color: var(--danger-color);
           }
+
           /* downsize the moving emojis*/
           span {
             /* make span hover above the td so it doesn't affect the latter's size */
             position: absolute;
             z-index: 1;
-            display: inline-block; /* facilitates applying the transforms below */
+            display: inline-block;
+
+            /* facilitates applying the transforms below */
             &.top {
               transform: rotate(90deg);
             }
+
             &.bottom {
               transform: rotate(270deg);
             }
+
             &.left {
               /* assumed to be the default direction, so we do nothing */
             }
+
             &.right {
-              transform: scale(-1, 1); /* flip the image horizontally */
+              transform: scale(-1, 1);
+              /* flip the image horizontally */
             }
+
             &.flip {
               transform: rotate(180deg);
             }
           }
+
           /* styles for popup messages */
           &.message-anchor {
             position: relative;
           }
+
           & > .message {
             position: absolute;
             z-index: 1;
@@ -133,10 +166,12 @@
             font-weight: bold;
             font-size: large;
             text-wrap: nowrap;
+
             &.bad {
               border-color: var(--danger-color);
               color: var(--danger-color);
             }
+
             &.good {
               border-color: var(--success-color);
               color: var(--success-color);
@@ -144,19 +179,30 @@
           }
         }
       }
+
       /* The Modal (background) */
       .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 100px; /* Location of the box */
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 1;
+        /* Sit on top */
+        padding-top: 100px;
+        /* Location of the box */
         left: 0;
         top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0, 0, 0); /* Fallback color */
-        background-color: rgba(0, 255, 0, 0.4); /* Red w/ opacity */
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgb(0, 0, 0);
+        /* Fallback color */
+        background-color: rgba(0, 255, 0, 0.4);
+
+        /* Red w/ opacity */
         /* Modal Content */
         .modal-content {
           background-color: white;
@@ -167,6 +213,7 @@
           border: 3px solid var(--danger-color);
           border-radius: 2rem;
           width: 60%;
+
           .header {
             display: flex;
             justify-content: center;
@@ -191,6 +238,7 @@
     </style>
     <script src="maze.js"></script>
   </head>
+
   <body>
     <div class="container">
       <table id="maze"></table>

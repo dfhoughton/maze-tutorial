@@ -426,6 +426,8 @@ class Maze {
   }
   dead() {
     this.state = "dead";
+    this.player.cell.td.innerHTML = '<span class="splat"> 💥 </span>';
+    center(this.player.cell.td);
     this.player.cell.message("Oh, noes!", false);
     const { pause } = this.buttons;
     pause.disabled = true;
@@ -663,7 +665,7 @@ class Cell {
 const monsterEmojis = [
   ["&#x1f47a;", "right"], // red Japanese goblin
   ["&#x1f98e;", "top"], // lizard
-  ["&#x1F9DF;&#x200D;&#x2640;&#xFE0F;", "left"], // femaile zombie
+  ["&#x1F9DF;&#x200D;&#x2640;&#xFE0F;", "left"], // female zombie
   ["&#x1F9CC;", "left"], // troll
   ["&#x1F577;&#xFE0F;", "top"], // spider
   ["&#x1F40C;", "right"], // snail
